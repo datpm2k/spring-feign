@@ -1,0 +1,23 @@
+server:
+  port: ${PORT:8080}
+spring:
+  application:
+    name: spring-feign
+  profiles:
+    active: dev
+  cloud:
+    openfeign:
+      httpclient:
+        hc5:
+          enabled: true
+feign:
+  client:
+    config:
+      accounts-service:
+        url: https://326d58b9-9aef-42f9-8c54-bf26235cc228.mock.pstmn.io/
+        connectTimeout: 30
+        readTimeout: 30
+      customer-service:
+        url: https://customer-service/api
+        connectTimeout: 30
+        readTimeout: 30
