@@ -2,7 +2,7 @@ package com.tad.springfeign.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tad.springfeign.client.AccountClient;
-import com.tad.springfeign.client.CustomerClient;
+import com.tad.springfeign.client.UserClient;
 import feign.*;
 import feign.codec.Decoder;
 import feign.jackson.JacksonDecoder;
@@ -22,31 +22,28 @@ public class FeignConfig {
 
     private final ObjectMapper mapper;
 
-    @Bean("accountsServiceClientProperties")
+    @Bean
     @ConfigurationProperties(prefix = "feign.client.config.accounts-service")
     FeignClientProperties accountsServiceClientProperties() {
         return new FeignClientProperties();
     }
 
-    @Bean("customerServiceClientProperties")
-    @ConfigurationProperties(prefix = "feign.client.config.customer-service")
-    FeignClientProperties customerServiceClientProperties() {
+    @Bean
+    @ConfigurationProperties(prefix = "feign.client.config.profiles-service")
+    FeignClientProperties profilesServiceClientProperties() {
         return new FeignClientProperties();
     }
 
-    @Bean("customerClient")
-    CustomerClient customerClient(
-            @Qualifier("customerServiceClientProperties") FeignClientProperties properties,
-            @Qualifier("feignRequestInterceptor") RequestInterceptor requestInterceptor,
-            @Qualifier("coreResponseDecoder") Decoder decoder
+    @Bean
+    UserClient userClient(
+            @Qualifier("profilesServiceClientProperties") FeignClientProperties properties
     ) {
         return feignBuilder(properties)
-                .decoder(decoder)
-                .requestInterceptor(requestInterceptor)
-                .target(CustomerClient.class, properties.getUrl());
+                .logger(new Slf4jLogger(UserClient.class))
+                .target(UserClient.class, properties.getUrl());
     }
 
-    @Bean("accountClient")
+    @Bean
     AccountClient accountClient(
             @Qualifier("accountsServiceClientProperties") FeignClientProperties properties,
             @Qualifier("feignRequestInterceptor") RequestInterceptor requestInterceptor,
@@ -55,6 +52,7 @@ public class FeignConfig {
         return feignBuilder(properties)
                 .decoder(decoder)
                 .requestInterceptor(requestInterceptor)
+                .logger(new Slf4jLogger(AccountClient.class))
                 .target(AccountClient.class, properties.getUrl());
     }
 
@@ -63,7 +61,6 @@ public class FeignConfig {
                 .encoder(new JacksonEncoder(mapper))
                 .decoder(new JacksonDecoder(mapper))
                 .logLevel(feignLoggerLevel())
-                .logger(new Slf4jLogger(AccountClient.class))
                 .options(feignRequestOption(properties))
                 .retryer(Retryer.NEVER_RETRY);
     }

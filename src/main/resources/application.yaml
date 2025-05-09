@@ -17,7 +17,7 @@ feign:
         url: https://326d58b9-9aef-42f9-8c54-bf26235cc228.mock.pstmn.io/
         connectTimeout: 30
         readTimeout: 30
-      customer-service:
-        url: https://customer-service/api
+      profiles-service:
+        url: https://5ae77e76-f200-4175-a9fc-e54b0bfc3a28.mock.pstmn.io/
         connectTimeout: 30
         readTimeout: 30
