@@ -21,3 +21,7 @@ feign:
         url: https://5ae77e76-f200-4175-a9fc-e54b0bfc3a28.mock.pstmn.io/
         connectTimeout: 30
         readTimeout: 30
+
+logging:
+  level:
+    com.tad.springfeign: INFO

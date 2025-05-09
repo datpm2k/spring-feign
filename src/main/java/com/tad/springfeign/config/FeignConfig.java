@@ -7,7 +7,6 @@ import feign.*;
 import feign.codec.Decoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
-import feign.slf4j.Slf4jLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 public class FeignConfig {
 
     private final ObjectMapper mapper;
+    private final FeignErrorDecoder errorDecoder;
+    private final FeignLogger logger;
 
     @Bean
     @ConfigurationProperties(prefix = "feign.client.config.accounts-service")
@@ -39,7 +40,6 @@ public class FeignConfig {
             @Qualifier("profilesServiceClientProperties") FeignClientProperties properties
     ) {
         return feignBuilder(properties)
-                .logger(new Slf4jLogger(UserClient.class))
                 .target(UserClient.class, properties.getUrl());
     }
 
@@ -52,7 +52,6 @@ public class FeignConfig {
         return feignBuilder(properties)
                 .decoder(decoder)
                 .requestInterceptor(requestInterceptor)
-                .logger(new Slf4jLogger(AccountClient.class))
                 .target(AccountClient.class, properties.getUrl());
     }
 
@@ -60,7 +59,9 @@ public class FeignConfig {
         return Feign.builder()
                 .encoder(new JacksonEncoder(mapper))
                 .decoder(new JacksonDecoder(mapper))
+                .errorDecoder(errorDecoder)
                 .logLevel(feignLoggerLevel())
+                .logger(logger)
                 .options(feignRequestOption(properties))
                 .retryer(Retryer.NEVER_RETRY);
     }
